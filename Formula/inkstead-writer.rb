@@ -1,10 +1,10 @@
 class InksteadWriter < Formula
   desc "Launcher for Inkstead Writer personal website publishing"
   homepage "https://inkstead.dev/writer"
-  url "https://github.com/ivonunes/inkstead-writer/releases/download/v2.0.0/inkstead-writer-v2.0.0",
+  url "https://github.com/ivonunes/inkstead-writer/releases/download/v2.0.3/inkstead-writer-v2.0.3",
       using: :nounzip
-  sha256 "8489918d0df4539ed6fd08d31dc9658ea73c8499207da6fdd9b4eb34a5a4d462"
-  version "2.0.0"
+  sha256 "65ccda4d396be2a6bb616166686b25e1a512122f1cb9d804cd198b082ad27b56"
+  version "2.0.3"
   license "MIT"
 
   def install
