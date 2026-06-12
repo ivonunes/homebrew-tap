@@ -1,26 +1,26 @@
 class Plume < Formula
   desc "Templating language for building expressive websites"
   homepage "https://inkstead.dev/plume"
-  version "1.0.0"
+  version "1.1.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/ivonunes/plume/releases/download/v1.0.0/plume-v1.0.0-macos-arm64.tar.gz"
-      sha256 "55c93f3ef71bc4ba76e94cfdc8c1bd7edf90503cbfd4e42d273553a8d137f7ea"
+      url "https://github.com/ivonunes/plume/releases/download/v1.1.0/plume-v1.1.0-macos-arm64.tar.gz"
+      sha256 "cd1946af066e0907cd3244eac62f9abbf812ea7cbbd86b46373be1fd1edc9d98"
     else
-      url "https://github.com/ivonunes/plume/releases/download/v1.0.0/plume-v1.0.0-macos-x86_64.tar.gz"
-      sha256 "246665114c8919a66b7614748401ff880af6f4c2d81c792559d7ad7f35a836f4"
+      url "https://github.com/ivonunes/plume/releases/download/v1.1.0/plume-v1.1.0-macos-x86_64.tar.gz"
+      sha256 "95fcfd98050ddc43223b46f0e555f2186ec018972771cfd3e6cfb444049d66f1"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/ivonunes/plume/releases/download/v1.0.0/plume-v1.0.0-linux-arm64.tar.gz"
-      sha256 "b892ed10ec572c53b2c82c4a31326a5d527154a958861a9fc8dcf0c402daa7e7"
+      url "https://github.com/ivonunes/plume/releases/download/v1.1.0/plume-v1.1.0-linux-arm64.tar.gz"
+      sha256 "cda4bd59a2c3850db902f537faecfa56c6b2e9100cfcca7a94a8128934eedffc"
     else
-      url "https://github.com/ivonunes/plume/releases/download/v1.0.0/plume-v1.0.0-linux-x86_64.tar.gz"
-      sha256 "bf90c2e6b902692c965fbc794002b4d0d1b58934b1bad0680086c31843bda28e"
+      url "https://github.com/ivonunes/plume/releases/download/v1.1.0/plume-v1.1.0-linux-x86_64.tar.gz"
+      sha256 "5c53a7d91d87f5c97566a29346874574a19e38e207335d0c60b2631d354ff106"
     end
   end
 
