@@ -111,22 +111,28 @@ FORMULA
     echo "Updated Formula/inkstead-writer.rb to $tag"
 }
 
-render_plume_formula() {
-    repo="ivonunes/plume"
+render_plumekit_formula() {
+    repo="ivonunes/plumekit"
     tag="$(latest_tag "$repo")"
     if [ -z "$tag" ]; then
-        echo "No Plume release found; leaving formula unchanged."
+        echo "No PlumeKit release found; leaving formula unchanged."
         return
     fi
 
-    checksums="$(mktemp "${TMPDIR:-/tmp}/plume-checksums.XXXXXX")"
+    checksums="$(mktemp "${TMPDIR:-/tmp}/plumekit-checksums.XXXXXX")"
     trap 'rm -f "$checksums"' EXIT HUP INT TERM
-    download_checksums "$repo" "$tag" "$checksums" plume
+    # The latest release may predate the plume→plumekit rename (its assets are named
+    # plume-*), so its plumekit-*-SHA256SUMS won't exist yet — skip rather than fail.
+    if ! download_checksums "$repo" "$tag" "$checksums" plumekit; then
+        echo "No plumekit-named assets for $tag yet; leaving formula unchanged."
+        rm -f "$checksums"; trap - EXIT HUP INT TERM
+        return
+    fi
 
-    macos_arm64_asset="plume-$tag-macos-arm64.tar.gz"
-    macos_x86_64_asset="plume-$tag-macos-x86_64.tar.gz"
-    linux_arm64_asset="plume-$tag-linux-arm64.tar.gz"
-    linux_x86_64_asset="plume-$tag-linux-x86_64.tar.gz"
+    macos_arm64_asset="plumekit-$tag-macos-arm64.tar.gz"
+    macos_x86_64_asset="plumekit-$tag-macos-x86_64.tar.gz"
+    linux_arm64_asset="plumekit-$tag-linux-arm64.tar.gz"
+    linux_x86_64_asset="plumekit-$tag-linux-x86_64.tar.gz"
 
     macos_arm64="$(checksum_for "$checksums" "$macos_arm64_asset")"
     macos_x86_64="$(checksum_for "$checksums" "$macos_x86_64_asset")"
@@ -140,10 +146,10 @@ render_plume_formula() {
 
     version="${tag#v}"
 
-    cat > "$formula_dir/plume.rb" <<FORMULA
-class Plume < Formula
-  desc "Templating language for building expressive websites"
-  homepage "https://inkstead.dev/plume"
+    cat > "$formula_dir/plumekit.rb" <<FORMULA
+class Plumekit < Formula
+  desc "Delightful Swift web framework that runs anywhere"
+  homepage "https://plumekit.dev"
   version "$version"
   license "MIT"
 
@@ -168,22 +174,22 @@ class Plume < Formula
   end
 
   def install
-    bin.install "plume"
+    bin.install "plumekit"
     prefix.install "LICENSE.txt" if File.exist?("LICENSE.txt")
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/plume version")
+    assert_match version.to_s, shell_output("#{bin}/plumekit version")
     (testpath/"sample.plume").write("@let title = \\"Hello\\"\\n<h1>{ title }</h1>\\n")
-    assert_match "Plume check passed", shell_output("#{bin}/plume check #{testpath}")
+    assert_match "Plume check passed", shell_output("#{bin}/plumekit check #{testpath}")
   end
 end
 FORMULA
 
     rm -f "$checksums"
     trap - EXIT HUP INT TERM
-    echo "Updated Formula/plume.rb to $tag"
+    echo "Updated Formula/plumekit.rb to $tag"
 }
 
 render_writer_formula
-render_plume_formula
+render_plumekit_formula
