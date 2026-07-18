@@ -1,26 +1,26 @@
 class Plumekit < Formula
   desc "Delightful Swift web framework that runs anywhere"
   homepage "https://plumekit.dev"
-  version "2.0.2"
+  version "2.1.1"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/ivonunes/plumekit/releases/download/v2.0.2/plumekit-v2.0.2-macos-arm64.tar.gz"
-      sha256 "0dc4a70b5a3669e60171b241b4c0311c9a6b2281e2c03e725fc948710d799723"
+      url "https://github.com/ivonunes/plumekit/releases/download/v2.1.1/plumekit-v2.1.1-macos-arm64.tar.gz"
+      sha256 "4cc24417773eaaf2114d0140e82142bff124ca6ddd3de435bcbfc3f9ac82bd39"
     else
-      url "https://github.com/ivonunes/plumekit/releases/download/v2.0.2/plumekit-v2.0.2-macos-x86_64.tar.gz"
-      sha256 "3e7fece3174a80e0dd333a8dff4fab58586e18760ead21e5bedc88b0ff28d9bc"
+      url "https://github.com/ivonunes/plumekit/releases/download/v2.1.1/plumekit-v2.1.1-macos-x86_64.tar.gz"
+      sha256 "f59def07e086d3b4a7be67c735eb7937ac799cfc4511ac1d9f91e744ac73720a"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/ivonunes/plumekit/releases/download/v2.0.2/plumekit-v2.0.2-linux-arm64.tar.gz"
-      sha256 "bc5d61c666921c6f78531f3d58b44d3ba945bf8422da1d12f8f33ec4e90bdf9b"
+      url "https://github.com/ivonunes/plumekit/releases/download/v2.1.1/plumekit-v2.1.1-linux-arm64.tar.gz"
+      sha256 "d0e18e5e2f508455a8af095d851e352ba62d45c1dd571dbd561436f944de2bd9"
     else
-      url "https://github.com/ivonunes/plumekit/releases/download/v2.0.2/plumekit-v2.0.2-linux-x86_64.tar.gz"
-      sha256 "224dd2f66488be85cabf0a524da398204eba28bcce8ffae5fbc48f34b26f0f5d"
+      url "https://github.com/ivonunes/plumekit/releases/download/v2.1.1/plumekit-v2.1.1-linux-x86_64.tar.gz"
+      sha256 "bea7c28b1617b82fd3de2ae1914fcaee30ed5b08e99fb5489a3c86022dab9cc1"
     end
   end
 
