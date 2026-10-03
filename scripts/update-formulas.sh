@@ -3,6 +3,7 @@ set -eu
 
 root="${HOMEBREW_TAP_ROOT:-$(CDPATH= cd "$(dirname "$0")/.." && pwd)}"
 formula_dir="$root/Formula"
+cask_dir="$root/Casks"
 mkdir -p "$formula_dir"
 
 github_get() {
@@ -191,5 +192,61 @@ FORMULA
     echo "Updated Formula/plumekit.rb to $tag"
 }
 
+render_wheelio_cask() {
+    repo="ivonunes/wheelio"
+    tag="$(latest_tag "$repo")"
+    if [ -z "$tag" ]; then
+        echo "No Wheelio release found; leaving cask unchanged."
+        return
+    fi
+
+    checksums="$(mktemp "${TMPDIR:-/tmp}/wheelio-checksums.XXXXXX")"
+    trap 'rm -f "$checksums"' EXIT HUP INT TERM
+    # Releases before 2.0.0 publish no checksums file (and weren't signed),
+    # so there's nothing to build a cask from yet.
+    if ! download_checksums "$repo" "$tag" "$checksums" wheelio; then
+        echo "No Wheelio checksums for $tag yet; leaving cask unchanged."
+        rm -f "$checksums"; trap - EXIT HUP INT TERM
+        return
+    fi
+
+    version="${tag#v}"
+    asset="wheelio-$version.zip"
+    sha="$(checksum_for "$checksums" "$asset")"
+    require_checksum "$sha" "$asset"
+
+    mkdir -p "$cask_dir"
+    cat > "$cask_dir/wheelio.rb" <<CASK
+cask "wheelio" do
+  version "$version"
+  sha256 "$sha"
+
+  url "https://github.com/$repo/releases/download/v#{version}/wheelio-#{version}.zip"
+  name "Wheelio"
+  desc "Force feedback for Logitech racing wheels in CrossOver and Wine games"
+  homepage "https://github.com/$repo"
+
+  depends_on arch: :arm64
+  depends_on macos: :sequoia
+
+  app "wheelio-#{version}/Wheelio.app"
+
+  uninstall quit: "uk.ivonunes.wheelio"
+
+  zap trash: [
+    "~/Library/Application Support/Wheelio",
+    "~/Library/Caches/uk.ivonunes.wheelio",
+    "~/Library/HTTPStorages/uk.ivonunes.wheelio",
+    "~/Library/Preferences/uk.ivonunes.wheelio.plist",
+  ]
+end
+CASK
+
+    rm -f "$checksums"
+    trap - EXIT HUP INT TERM
+    echo "Updated Casks/wheelio.rb to $tag"
+}
+
 render_writer_formula
 render_plumekit_formula
+render_wheelio_cask
