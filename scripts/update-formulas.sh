@@ -2,9 +2,7 @@
 set -eu
 
 root="${HOMEBREW_TAP_ROOT:-$(CDPATH= cd "$(dirname "$0")/.." && pwd)}"
-formula_dir="$root/Formula"
 cask_dir="$root/Casks"
-mkdir -p "$formula_dir"
 
 github_get() {
     url="$1"
@@ -70,128 +68,6 @@ require_checksum() {
     }
 }
 
-render_writer_formula() {
-    repo="ivonunes/inkstead-writer"
-    tag="$(latest_tag "$repo")"
-    if [ -z "$tag" ]; then
-        echo "No Inkstead Writer release found; leaving formula unchanged."
-        return
-    fi
-
-    checksums="$(mktemp "${TMPDIR:-/tmp}/inkstead-writer-checksums.XXXXXX")"
-    trap 'rm -f "$checksums"' EXIT HUP INT TERM
-    download_checksums "$repo" "$tag" "$checksums" inkstead-writer
-
-    launcher="inkstead-writer-$tag"
-    launcher_sha="$(checksum_for "$checksums" "$launcher")"
-    require_checksum "$launcher_sha" "$launcher"
-    version="${tag#v}"
-
-    cat > "$formula_dir/inkstead-writer.rb" <<FORMULA
-class InksteadWriter < Formula
-  desc "Launcher for Inkstead Writer personal website publishing"
-  homepage "https://inkstead.dev/writer"
-  url "https://github.com/$repo/releases/download/$tag/$launcher",
-      using: :nounzip
-  sha256 "$launcher_sha"
-  version "$version"
-  license "MIT"
-
-  def install
-    bin.install cached_download => "inkstead-writer"
-  end
-
-  test do
-    assert_match "Inkstead Writer launcher", shell_output("#{bin}/inkstead-writer --help")
-  end
-end
-FORMULA
-
-    rm -f "$checksums"
-    trap - EXIT HUP INT TERM
-    echo "Updated Formula/inkstead-writer.rb to $tag"
-}
-
-render_plumekit_formula() {
-    repo="ivonunes/plumekit"
-    tag="$(latest_tag "$repo")"
-    if [ -z "$tag" ]; then
-        echo "No PlumeKit release found; leaving formula unchanged."
-        return
-    fi
-
-    checksums="$(mktemp "${TMPDIR:-/tmp}/plumekit-checksums.XXXXXX")"
-    trap 'rm -f "$checksums"' EXIT HUP INT TERM
-    # The latest release may predate the plume→plumekit rename (its assets are named
-    # plume-*), so its plumekit-*-SHA256SUMS won't exist yet — skip rather than fail.
-    if ! download_checksums "$repo" "$tag" "$checksums" plumekit; then
-        echo "No plumekit-named assets for $tag yet; leaving formula unchanged."
-        rm -f "$checksums"; trap - EXIT HUP INT TERM
-        return
-    fi
-
-    macos_arm64_asset="plumekit-$tag-macos-arm64.tar.gz"
-    macos_x86_64_asset="plumekit-$tag-macos-x86_64.tar.gz"
-    linux_arm64_asset="plumekit-$tag-linux-arm64.tar.gz"
-    linux_x86_64_asset="plumekit-$tag-linux-x86_64.tar.gz"
-
-    macos_arm64="$(checksum_for "$checksums" "$macos_arm64_asset")"
-    macos_x86_64="$(checksum_for "$checksums" "$macos_x86_64_asset")"
-    linux_arm64="$(checksum_for "$checksums" "$linux_arm64_asset")"
-    linux_x86_64="$(checksum_for "$checksums" "$linux_x86_64_asset")"
-
-    require_checksum "$macos_arm64" "$macos_arm64_asset"
-    require_checksum "$macos_x86_64" "$macos_x86_64_asset"
-    require_checksum "$linux_arm64" "$linux_arm64_asset"
-    require_checksum "$linux_x86_64" "$linux_x86_64_asset"
-
-    version="${tag#v}"
-
-    cat > "$formula_dir/plumekit.rb" <<FORMULA
-class Plumekit < Formula
-  desc "Delightful Swift web framework that runs anywhere"
-  homepage "https://plumekit.dev"
-  version "$version"
-  license "MIT"
-
-  on_macos do
-    if Hardware::CPU.arm?
-      url "https://github.com/$repo/releases/download/$tag/$macos_arm64_asset"
-      sha256 "$macos_arm64"
-    else
-      url "https://github.com/$repo/releases/download/$tag/$macos_x86_64_asset"
-      sha256 "$macos_x86_64"
-    end
-  end
-
-  on_linux do
-    if Hardware::CPU.arm?
-      url "https://github.com/$repo/releases/download/$tag/$linux_arm64_asset"
-      sha256 "$linux_arm64"
-    else
-      url "https://github.com/$repo/releases/download/$tag/$linux_x86_64_asset"
-      sha256 "$linux_x86_64"
-    end
-  end
-
-  def install
-    bin.install "plumekit"
-    prefix.install "LICENSE.txt" if File.exist?("LICENSE.txt")
-  end
-
-  test do
-    assert_match version.to_s, shell_output("#{bin}/plumekit version")
-    (testpath/"sample.plume").write("@let title = \\"Hello\\"\\n<h1>{ title }</h1>\\n")
-    assert_match "Plume check passed", shell_output("#{bin}/plumekit check #{testpath}")
-  end
-end
-FORMULA
-
-    rm -f "$checksums"
-    trap - EXIT HUP INT TERM
-    echo "Updated Formula/plumekit.rb to $tag"
-}
-
 render_wheelio_cask() {
     repo="ivonunes/wheelio"
     tag="$(latest_tag "$repo")"
@@ -247,6 +123,4 @@ CASK
     echo "Updated Casks/wheelio.rb to $tag"
 }
 
-render_writer_formula
-render_plumekit_formula
 render_wheelio_cask
